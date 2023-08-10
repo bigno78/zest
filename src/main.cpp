@@ -742,7 +742,6 @@ int main(int argc, char** argv)
 
         double start_time = GetTime();
 
-        std::cout << editor.view_rect.x << "\n";
         update(line_buffer, cursor, editor, last_frame_time);
         draw(line_buffer, cursor, editor);
 
