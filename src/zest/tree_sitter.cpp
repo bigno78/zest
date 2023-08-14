@@ -1,4 +1,4 @@
-#include "tree_sitter.hpp"
+#include <zest/tree_sitter.hpp>
 
 #include <iostream>
 

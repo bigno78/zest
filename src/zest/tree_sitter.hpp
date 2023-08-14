@@ -1,6 +1,6 @@
 #pragma once
 
-#include "text.hpp"
+#include <zest/text.hpp>
 
 #include <tree_sitter/api.h>
 

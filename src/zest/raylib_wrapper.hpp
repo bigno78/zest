@@ -2,7 +2,7 @@
 
 #include "raylib.h"
 
-#include "types.hpp"
+#include <zest/types.hpp>
 
 namespace zest
 {

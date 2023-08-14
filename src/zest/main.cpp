@@ -1,10 +1,9 @@
-#include "raylib_wrapper.hpp"
-#include "text.hpp"
-#include "tree_sitter.hpp"
-#include "types.hpp"
-
-#include <highlight/captures.hpp>
-#include <highlight/queries.hpp>
+#include <zest/raylib_wrapper.hpp>
+#include <zest/text.hpp>
+#include <zest/tree_sitter.hpp>
+#include <zest/types.hpp>
+#include <zest/highlight/captures.hpp>
+#include <zest/highlight/queries.hpp>
 
 #include <fstream>
 #include <iostream>
