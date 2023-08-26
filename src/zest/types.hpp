@@ -30,24 +30,24 @@ struct Color
     uint8_t a;
 };
 
-float get_top(const Rect& rect) { return rect.y; }
-float get_bot(const Rect& rect) { return rect.y + rect.height; }
-float get_left(const Rect& rect) { return rect.x; }
-float get_right(const Rect& rect) { return rect.x + rect.width; }
+inline float get_top(const Rect& rect) { return rect.y; }
+inline float get_bot(const Rect& rect) { return rect.y + rect.height; }
+inline float get_left(const Rect& rect) { return rect.x; }
+inline float get_right(const Rect& rect) { return rect.x + rect.width; }
 
-bool is_inside(Vec2 pos, const Rect& rect)
+inline bool is_inside(Vec2 pos, const Rect& rect)
 {
     return pos.x >= rect.x && pos.x <= rect.x + rect.width
             && pos.y >= rect.y && pos.y <= rect.y + rect.height;
 }
 
-bool are_intersecting(const Rect& lhs, const Rect& rhs)
+inline  bool are_intersecting(const Rect& lhs, const Rect& rhs)
 {
     return get_left(rhs) <= get_right(lhs) && get_right(rhs) >= get_left(lhs)
         && get_bot(rhs) >= get_top(lhs) && get_top(rhs) <= get_bot(lhs);
 }
 
-Rect clip_rect_to_fit(const Rect& container, const Rect& target)
+inline  Rect clip_rect_to_fit(const Rect& container, const Rect& target)
 {
     Rect result = target;
 
