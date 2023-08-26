@@ -40,6 +40,9 @@ using QueryCursorPtr = std::unique_ptr<TSQueryCursor,
 
 
 ParserPtr init();
+QueryPtr init_highlight_queries(const TSParser* parser);
+QueryCursorPtr init_query_cursor();
+
 TreePtr parse_text(TSParser* parser, LineBuffer& line_buff);
 
 

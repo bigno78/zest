@@ -1,3 +1,4 @@
+#include <zest/app.hpp>
 #include <zest/raylib_wrapper.hpp>
 #include <zest/text.hpp>
 #include <zest/tree_sitter.hpp>
@@ -11,78 +12,6 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-
-
-struct CursorState
-{
-    struct MoveState
-    {
-        double down_time = 0.0;
-        bool active = false;
-    };
-
-    double blink_time = 0.5;
-
-    double time = 0.0;
-    bool visible = true;
-
-    int line = 0;
-    int col = 0;
-    int original_col = 0;
-
-    MoveState state_left;
-    MoveState state_right;
-    MoveState state_up;
-    MoveState state_down;
-
-    double initial_delay = 0.5;
-    double move_rate = 0.05;
-};
-
-struct FontInfo
-{
-    Font font;
-    int font_size;
-    float char_step;
-    float char_spacing;
-};
-
-struct Editor
-{
-    int top_left_x;
-    int top_left_y;
-    int width;
-    int height;
-    zest::Rect text_area_rect;
-
-    float file_space_x;
-    float file_space_y;
-    zest::Rect view_rect;
-
-    FontInfo font_info;
-
-    Image text_area_image;
-
-    float cell_width;
-    float cell_height;
-
-    bool cursorize_view = false;
-
-    bool selecting = false;
-    bool selection_valid = false;
-    zest::CellPos selection_origin;
-    zest::CellPos selection_current;
-
-    zest::tree_sitter::ParserPtr parser {
-        nullptr, zest::tree_sitter::delete_parser };
-
-    zest::tree_sitter::QueryPtr queries {
-        nullptr, zest::tree_sitter::delete_query };
-
-    zest::tree_sitter::QueryCursorPtr query_cursor {
-        nullptr, zest::tree_sitter::delete_query_cursor };
-
-};
 
 
 zest::CellPos window_to_cursor_pos(Editor& editor,
@@ -121,14 +50,6 @@ zest::CellPos window_to_cell_pos(Editor& editor,
         row = line_buffer.line_count();
 
     return { row, col };
-}
-
-
-int measure_char_width(FontInfo font_info)
-{
-    Vector2 dims = MeasureTextEx(font_info.font, "A", font_info.font_size,
-                                 font_info.char_spacing);
-    return dims.x;
 }
 
 bool move_cursor_up(CursorState& cursor, const LineBuffer& line_buffer)
@@ -624,57 +545,6 @@ void draw(LineBuffer& line_buffer, CursorState& cursor, Editor& editor)
 }
 
 
-zest::tree_sitter::QueryPtr init_highlight_queries(const TSParser* parser)
-{
-    const TSLanguage* lang = ts_parser_language(parser);
-
-    uint32_t err_offset;
-    TSQueryError err_type;
-
-    TSQuery* raw_query =
-        ts_query_new(lang, zest::highlight::cpp_queries,
-                     std::strlen(zest::highlight::cpp_queries),
-                     &err_offset, &err_type);
-
-    if (!raw_query)
-    {
-        std::cerr << "Query error at " << err_offset << "\n";
-        std::cerr << std::string_view(zest::highlight::cpp_queries + err_offset) << "\n";
-        switch(err_type)
-        {
-            case TSQueryErrorSyntax:
-                std::cout << "syntax\n";
-                break;
-            case TSQueryErrorNodeType:
-                std::cout << "node_type\n";
-                break;
-            case TSQueryErrorField:
-                std::cout << "field\n";
-                break;
-            case TSQueryErrorCapture:
-                std::cout << "capture\n";
-                break;
-            case TSQueryErrorNone:
-                std::cout << "none\n";
-                break;
-            default:
-                std::cout << "idk\n";
-                break;
-        }
-        throw std::runtime_error("Failed to load queries.");
-    }
-
-    return zest::tree_sitter::QueryPtr(raw_query,
-                                       zest::tree_sitter::delete_query);
-};
-
-zest::tree_sitter::QueryCursorPtr init_query_cursor()
-{
-    return zest::tree_sitter::QueryCursorPtr(
-                ts_query_cursor_new(),
-                zest::tree_sitter::delete_query_cursor);
-};
-
 int main(int argc, char** argv)
 {
     std::string file_path;
@@ -694,44 +564,9 @@ int main(int argc, char** argv)
     SetConfigFlags(FLAG_WINDOW_HIGHDPI);
     InitWindow(window_width, window_height, "edwin");
 
-    Editor editor;
-
-    editor.top_left_x = 20;
-    editor.top_left_y = 20;
-    editor.width = 600;
-    editor.height = 400;
-    editor.text_area_rect = zest::Rect {
-        (float)editor.top_left_x, (float)editor.top_left_y,
-        (float)editor.width, (float)editor.height
-    };
-
-    editor.file_space_x = 0.0f;
-    editor.file_space_y = 0.0f;
-    editor.view_rect = zest::Rect {
-        editor.file_space_x, editor.file_space_y,
-        (float)editor.width, (float)editor.height
-    };
-
-    editor.font_info.font_size = 18;
-    editor.font_info.font = LoadFontEx("../resources/FiraCode-Regular.ttf",
-                                       editor.font_info.font_size,
-                                       NULL,
-                                       0);
-    editor.font_info.char_spacing = 1;
-    editor.font_info.char_step = editor.font_info.char_spacing
-                        + measure_char_width(editor.font_info);
-
-    editor.cell_width = editor.font_info.char_step;
-    editor.cell_height = editor.font_info.font_size;
-
-    editor.text_area_image = GenImageColor(editor.width, editor.height,
-                                           { 0, 0, 255, 255 });
-
-    editor.parser = zest::tree_sitter::init();
-    editor.queries = init_highlight_queries(editor.parser.get());
-    editor.query_cursor = init_query_cursor();
-
-    CursorState cursor;
+    std::cout << "aaaaa" << std::endl;
+    App app = init_app(window_width, window_height);
+    std::cout << "aaaaa\n";
 
     double last_frame_time = 0.0f;
     while (true)
@@ -741,8 +576,8 @@ int main(int argc, char** argv)
 
         double start_time = GetTime();
 
-        update(line_buffer, cursor, editor, last_frame_time);
-        draw(line_buffer, cursor, editor);
+        update(line_buffer, app.cursor, app.editor, last_frame_time);
+        draw(line_buffer, app.cursor, app.editor);
 
         double elapsed = GetTime() - start_time;
         if (elapsed < target_frame_time)
@@ -751,8 +586,8 @@ int main(int argc, char** argv)
         last_frame_time = GetTime() - start_time;
     }
 
-    UnloadImage(editor.text_area_image);
-    UnloadFont(editor.font_info.font);
+    UnloadImage(app.editor.text_area_image);
+    UnloadFont(app.editor.font_info.font);
 
     CloseWindow();
 }

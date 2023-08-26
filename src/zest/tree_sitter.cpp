@@ -1,4 +1,7 @@
-#include <zest/tree_sitter.hpp>
+#include "tree_sitter.hpp"
+
+#include <zest/highlight/captures.hpp>
+#include <zest/highlight/queries.hpp>
 
 #include <iostream>
 
@@ -40,6 +43,57 @@ ParserPtr zest::tree_sitter::init()
     ParserPtr parser(ts_parser_new(), delete_parser);
     ts_parser_set_language(parser.get(), tree_sitter_cpp());
     return parser;
+}
+
+QueryPtr zest::tree_sitter::init_highlight_queries(const TSParser* parser)
+{
+        const TSLanguage* lang = ts_parser_language(parser);
+
+    uint32_t err_offset;
+    TSQueryError err_type;
+
+    TSQuery* raw_query =
+        ts_query_new(lang, zest::highlight::cpp_queries,
+                     std::strlen(zest::highlight::cpp_queries),
+                     &err_offset, &err_type);
+
+    if (!raw_query)
+    {
+        std::cerr << "Query error at " << err_offset << "\n";
+        std::cerr << std::string_view(zest::highlight::cpp_queries + err_offset) << "\n";
+        switch(err_type)
+        {
+            case TSQueryErrorSyntax:
+                std::cout << "syntax\n";
+                break;
+            case TSQueryErrorNodeType:
+                std::cout << "node_type\n";
+                break;
+            case TSQueryErrorField:
+                std::cout << "field\n";
+                break;
+            case TSQueryErrorCapture:
+                std::cout << "capture\n";
+                break;
+            case TSQueryErrorNone:
+                std::cout << "none\n";
+                break;
+            default:
+                std::cout << "idk\n";
+                break;
+        }
+        throw std::runtime_error("Failed to load queries.");
+    }
+
+    return zest::tree_sitter::QueryPtr(raw_query,
+                                       zest::tree_sitter::delete_query);
+}
+
+QueryCursorPtr zest::tree_sitter::init_query_cursor()
+{
+    return zest::tree_sitter::QueryCursorPtr(
+            ts_query_cursor_new(),
+            zest::tree_sitter::delete_query_cursor);
 }
 
 TreePtr zest::tree_sitter::parse_text(TSParser* parser, LineBuffer& line_buff)

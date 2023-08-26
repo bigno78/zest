@@ -34,7 +34,9 @@ add_library(ts_cpp STATIC
 target_link_libraries(ts_cpp PRIVATE ts)
 
 
-add_executable(${PROJECT_NAME} src/zest/main.cpp src/zest/tree_sitter.cpp)
+add_executable(${PROJECT_NAME} src/zest/main.cpp
+                               src/zest/tree_sitter.cpp
+                               src/zest/app.cpp)
 target_include_directories(${PROJECT_NAME} PRIVATE src/)
 target_link_libraries(${PROJECT_NAME} raylib ts ts_cpp)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
