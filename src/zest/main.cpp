@@ -564,9 +564,7 @@ int main(int argc, char** argv)
     SetConfigFlags(FLAG_WINDOW_HIGHDPI);
     InitWindow(window_width, window_height, "edwin");
 
-    std::cout << "aaaaa" << std::endl;
     App app = init_app(window_width, window_height);
-    std::cout << "aaaaa\n";
 
     double last_frame_time = 0.0f;
     while (true)
