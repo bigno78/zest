@@ -91,7 +91,7 @@ void print_display_info(XcbWindow& w)
     }
 }
 
-void print_event(xcb_generic_event_t* event)
+void print_event(XcbWindow& w, xcb_generic_event_t* event)
 {
     if (!event)
     {
@@ -117,12 +117,40 @@ void print_event(xcb_generic_event_t* event)
         }
         case XCB_REPARENT_NOTIFY:
         {
-            std::cout << "Reparent notify\n";
+            xcb_reparent_notify_event_t* e = (xcb_reparent_notify_event_t*)event;
+            std::cout << "> REPARENT_NOTIFY\n";
+            std::cout << "     window     = " << int(w.id) << " x " << int(e->window) << "\n";
+            std::cout << "     old_parent = " << int(w.parent) << "\n";
+            std::cout << "     new_parent = " << int(e->parent) << "\n";
             break;
         }
         case XCB_PROPERTY_NOTIFY:
         {
-            std::cout << "Property notify\n";
+            xcb_property_notify_event_t* e = (xcb_property_notify_event_t*)event;
+
+            xcb_get_atom_name_cookie_t cookie = xcb_get_atom_name(w.connection, e->atom);
+            xcb_generic_error_t* error = NULL;
+            xcb_get_atom_name_reply_t* reply = xcb_get_atom_name_reply(w.connection, cookie, &error);
+
+            if (!reply || error)
+            {
+                std::cout << "Erro getting atom!\n";
+                break;
+            }
+
+            std::cout << "> Property notify:\n";
+            std::cout << "    atom = " << xcb_get_atom_name_name(reply) << "\n";
+            std::cout << "    state = ";
+            if (e->state == XCB_PROPERTY_NEW_VALUE)
+                std::cout << "new\n";
+            else if (e->state == XCB_PROPERTY_DELETE)
+                std::cout << "deleted\n";
+            else
+                std::cout << "unknown\n";
+
+            if (reply)
+                free(reply);
+
             break;
         }
         case XCB_CONFIGURE_NOTIFY:
@@ -296,7 +324,7 @@ int main ()
     {
         event = xcb_poll_for_event(w.connection);
         if (event)
-            print_event(event);
+            print_event(w, event);
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 
